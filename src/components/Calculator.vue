@@ -1,9 +1,17 @@
 <template>
   <div class="calculator">
       <div class="display border-top border-left border-right">
-        <ul>
-          <li v-for=" ( item, index ) in history" :key="index">
-              
+        <p v-if="history.length == 0" >History clear</p>
+        <ul class="history-list">
+          <li v-for=" ( item, index ) in history" :key="index" class="history-list-item">
+            <div class="history-item-container">
+              <div class="item-opeartion">
+                {{ item.operation }}
+              </div>
+              <div class="item-result">
+                {{ item.result }}
+              </div>
+            </div>
           </li>
         </ul>
         {{ current_operation }} {{current_result}}
@@ -25,8 +33,8 @@
       <div class="btn border-top border-right"  @click="number('3')">3</div>
       <div class="btn operator border-top" @click="operator('+')" >+</div>
       <div class="btn zero border-left border-top border-right border-bottom" @click="number('0')">0</div>
-      <div class="btn border-top border-right border-bottom">.</div>
-      <div class="btn operator border-top border-bottom">=</div>
+      <div class="btn border-top border-right border-bottom" @click="dot()">.</div>
+      <div class="btn operator border-top border-bottom" @click="resolve()">=</div>
   </div>
 </template>
 
@@ -36,7 +44,7 @@
     data() {
       return {
         current_operation : '',
-        current_result : '',
+        current_result : '0',
         current_operator : '',
         history : [],
         result  : '',
@@ -46,16 +54,14 @@
     methods: {
 
       
-      /* Add */
-      add(a, b) 
-      {
-        this.current_result = parseFloat( a ) + parseFloat( b );
-      },
 
       /* Operator pressed */
 
       operator(op)
       {
+
+        this.current_result = '';
+        
         if(this.current_operation)
         {
           this.current_operation = this.current_operation + ' ' + op + ' ';
@@ -67,10 +73,11 @@
 
       number( number )
       {
-        if(this.current_operation)
+        this.current_result = '';
+
+        if(this.current_operation && this.current_operation != "0")
         {
           this.current_operation = this.current_operation + number;
-          this.current_result = eval(this.current_operation);
         }
         else
         {
@@ -80,11 +87,25 @@
         
       },
 
-      /* Print the history */
-
-      print_history () 
+      dot()
       {
+        if(this.current.indexOf('.') === -1) {
+          this.current_operation = this.current_operation + '.';
+        }
+      },
 
+      /* Add to history */
+
+      add_history () 
+      {
+        this.history.push({ operation: this.current_operation, result: this.current_result });
+      },
+
+      /* clear from history */
+
+      clear_history () 
+      {
+        this.history = [];
       },
 
       /* Print the screen preview */
@@ -101,13 +122,17 @@
       {
         this.current_operation = '';
         this.current_result = '0';
+
+        this.clear_history();
       },
 
 
       /* resolve the string */
-      resolve_multiplication()
+      resolve()
       {
-
+          this.current_result = '= ' + eval(this.current_operation);
+          this.add_history();
+          
       }
 
 
@@ -239,5 +264,48 @@
     background: rgb(221, 200, 200);
     cursor: pointer;
   }
+
+  ul{
+    list-style: none;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 12px;
+    color: rgb(112, 111, 111);  
+    padding: 0px;
+    margin: 0px;  
+    border-bottom: solid 1px rgba(221, 200, 200, 0.4);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+
+  li
+  {
+    width: 100%;
+    box-sizing: border-box;
+
+  }
+
+  .history-item-container
+  {
+    display: flex;
+    align-content: center;
+    justify-items: center;
+    padding: 3px;
+  }
+
+  .item-opeartion
+  {
+      text-align: left;
+      min-width: 70%;
+  }
+
+    .item-result
+  {
+      text-align: right;
+      min-width: 30%;
+  }
+
+
+
 
 </style>
